@@ -1,0 +1,6 @@
+{
+  "providers": [
+    { "id": "deepseek", "type": "deepseek", "apiKeyEnv": "DEEPSEEK_API_KEY" }
+  ],
+  "entries": []
+}

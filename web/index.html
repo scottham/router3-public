@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="description" content="OpenAI-compatible model API gateway. Your USDC stays in your own x402 channel and pays for the tokens you use." />
+    <title>Router 3</title>
+    <script>
+      // Apply the saved theme before first paint to avoid a light flash.
+      try { const t = localStorage.getItem('router3:theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch {}
+    </script>
+  </head>
+  <body>
+    <a class="visually-hidden" href="#main">Skip to main content</a>
+    <div id="app">
+      <div class="landing"><div class="landing-main"><div class="skeleton" aria-hidden="true"><span></span><span></span><span></span></div></div></div>
+    </div>
+    <noscript>
+      <p style="padding: 24px; text-align: center;">The console needs JavaScript: wallet sign-in runs in the browser. 控制台需要启用 JavaScript。</p>
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

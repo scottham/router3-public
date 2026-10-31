@@ -1,0 +1,43 @@
+// Scrapes the Router 3 exporter and this host, then pushes outbound to Grafana
+// Cloud. Nothing listens publicly; credentials come from the environment.
+
+prometheus.scrape "router3" {
+  targets         = [{"__address__" = "metrics:9464", "job" = "router3"}]
+  scrape_interval = "30s"
+  scrape_timeout  = "20s"
+  forward_to      = [prometheus.relabel.instance.receiver]
+}
+
+prometheus.exporter.unix "host" {
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+  rootfs_path = "/host/root"
+  filesystem {
+    mount_points_exclude = "^/(dev|proc|run|sys|var/lib/docker/.+)($|/)"
+    fs_types_exclude     = "^(overlay|tmpfs|squashfs|nsfs|proc|sysfs|cgroup2?|autofs|devpts|mqueue|tracefs|bpf|fusectl|configfs|debugfs|securityfs|pstore)$"
+  }
+}
+
+prometheus.scrape "host" {
+  targets         = prometheus.exporter.unix.host.targets
+  scrape_interval = "60s"
+  forward_to      = [prometheus.relabel.instance.receiver]
+}
+
+prometheus.relabel "instance" {
+  forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+  rule {
+    target_label = "instance"
+    replacement  = sys.env("METRICS_INSTANCE")
+  }
+}
+
+prometheus.remote_write "grafana_cloud" {
+  endpoint {
+    url = sys.env("GRAFANA_PROM_URL")
+    basic_auth {
+      username = sys.env("GRAFANA_PROM_USER")
+      password = sys.env("GRAFANA_PROM_TOKEN")
+    }
+  }
+}

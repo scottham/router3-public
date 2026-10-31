@@ -1,0 +1,44 @@
+data: {"type":"response.created","response":{"id":"gen-1792677111-88EDixE6jYb4EqZYmgOV","object":"response","created_at":1792677111,"model":"deepseek/deepseek-v4.1-flash","status":"in_progress","completed_at":null,"output":[],"error":null,"incomplete_details":null,"tools":[],"tool_choice":"auto","parallel_tool_calls":true,"max_output_tokens":20,"temperature":1,"top_p":1,"presence_penalty":0,"frequency_penalty":0,"top_logprobs":0,"max_tool_calls":null,"metadata":{},"background":false,"previous_response_id":null,"service_tier":"auto","truncation":"disabled","store":false,"instructions":null,"text":{"format":{"type":"text"}},"reasoning":null,"safety_identifier":null,"prompt_cache_key":null,"prompt_cache_options":null,"usage":null},"sequence_number":0}
+
+data: {"type":"response.in_progress","response":{"id":"gen-1792677111-88EDixE6jYb4EqZYmgOV","object":"response","created_at":1792677111,"model":"deepseek/deepseek-v4.1-flash","status":"in_progress","completed_at":null,"output":[],"error":null,"incomplete_details":null,"tools":[],"tool_choice":"auto","parallel_tool_calls":true,"max_output_tokens":20,"temperature":1,"top_p":1,"presence_penalty":0,"frequency_penalty":0,"top_logprobs":0,"max_tool_calls":null,"metadata":{},"background":false,"previous_response_id":null,"service_tier":"auto","truncation":"disabled","store":false,"instructions":null,"text":{"format":{"type":"text"}},"reasoning":null,"safety_identifier":null,"prompt_cache_key":null,"prompt_cache_options":null,"usage":null},"sequence_number":1}
+
+data: {"type":"response.output_item.added","output_index":0,"item":{"id":"rs_tmp_0ly9ta7unhma","type":"reasoning","status":"in_progress","summary":[]},"sequence_number":2}
+
+data: {"type":"response.content_part.added","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"part":{"type":"reasoning_text","text":""},"sequence_number":3}
+
+data: {"type":"response.reasoning_text.delta","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"delta":"We","sequence_number":4}
+
+data: {"type":"response.reasoning_text.delta","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"delta":" need answer. User says \"","sequence_number":5}
+
+data: {"type":"response.reasoning_text.delta","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"delta":"Reply OK\". Need","sequence_number":6}
+
+data: {"type":"response.reasoning_text.delta","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"delta":" just","sequence_number":7}
+
+data: {"type":"response.reasoning_text.delta","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"delta":" OK","sequence_number":8}
+
+data: {"type":"response.reasoning_text.delta","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"delta":". Ensure","sequence_number":9}
+
+data: {"type":"response.reasoning_text.delta","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"delta":" no extra.","sequence_number":10}
+
+data: {"type":"response.reasoning_text.done","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"text":"We need answer. User says \"Reply OK\". Need just OK. Ensure no extra.","sequence_number":11}
+
+data: {"type":"response.content_part.done","output_index":0,"item_id":"rs_tmp_0ly9ta7unhma","content_index":0,"part":{"type":"reasoning_text","text":"We need answer. User says \"Reply OK\". Need just OK. Ensure no extra."},"sequence_number":12}
+
+data: {"type":"response.output_item.done","output_index":0,"item":{"id":"rs_tmp_0ly9ta7unhma","type":"reasoning","status":"completed","content":[{"type":"reasoning_text","text":"We need answer. User says \"Reply OK\". Need just OK. Ensure no extra."}],"summary":[],"format":"unknown"},"sequence_number":13}
+
+data: {"type":"response.output_item.added","output_index":1,"item":{"id":"msg_tmp_zk6vytffnlc","type":"message","status":"in_progress","role":"assistant","content":[]},"sequence_number":14}
+
+data: {"type":"response.content_part.added","output_index":1,"item_id":"msg_tmp_zk6vytffnlc","content_index":0,"part":{"type":"output_text","text":"","annotations":[],"logprobs":[]},"sequence_number":15}
+
+data: {"type":"response.output_text.delta","output_index":1,"item_id":"msg_tmp_zk6vytffnlc","content_index":0,"delta":"OK","logprobs":[],"sequence_number":16}
+
+data: {"type":"response.output_text.done","output_index":1,"item_id":"msg_tmp_zk6vytffnlc","content_index":0,"text":"OK","logprobs":[],"sequence_number":17}
+
+data: {"type":"response.content_part.done","output_index":1,"item_id":"msg_tmp_zk6vytffnlc","content_index":0,"part":{"type":"output_text","text":"OK","annotations":[],"logprobs":[]},"sequence_number":18}
+
+data: {"type":"response.output_item.done","output_index":1,"item":{"id":"msg_tmp_zk6vytffnlc","type":"message","status":"completed","role":"assistant","content":[{"type":"output_text","text":"OK","annotations":[],"logprobs":[]}]},"sequence_number":19}
+
+data: {"type":"response.incomplete","response":{"id":"gen-1792677111-88EDixE6jYb4EqZYmgOV","object":"response","created_at":1792677111,"model":"deepseek/deepseek-v4.1-flash","status":"incomplete","completed_at":1792677111,"output":[{"id":"rs_tmp_0ly9ta7unhma","type":"reasoning","status":"completed","content":[{"type":"reasoning_text","text":"We need answer. User says \"Reply OK\". Need just OK. Ensure no extra."}],"summary":[],"format":"unknown"},{"id":"msg_tmp_zk6vytffnlc","type":"message","role":"assistant","status":"completed","content":[{"type":"output_text","text":"OK","annotations":[],"logprobs":[]}]}],"error":null,"incomplete_details":{"reason":"max_output_tokens"},"tools":[],"tool_choice":"auto","parallel_tool_calls":true,"max_output_tokens":20,"temperature":1,"top_p":1,"presence_penalty":0,"frequency_penalty":0,"top_logprobs":0,"max_tool_calls":null,"metadata":{},"background":false,"previous_response_id":null,"service_tier":"auto","truncation":"disabled","store":false,"instructions":null,"text":{"format":{"type":"text"}},"reasoning":{"effort":"high"},"safety_identifier":null,"prompt_cache_key":null,"prompt_cache_options":null,"usage":{"input_tokens":32,"input_tokens_details":{"cached_tokens":0},"output_tokens":20,"output_tokens_details":{"reasoning_tokens":19},"total_tokens":52,"cost":0.00001908,"is_byok":false,"cost_details":{"upstream_inference_cost":0.00001908,"upstream_inference_input_cost":0.00000608,"upstream_inference_output_cost":0.000013}}},"sequence_number":20}
+
+data: [DONE]
+

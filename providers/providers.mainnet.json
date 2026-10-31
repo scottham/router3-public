@@ -1,0 +1,10 @@
+{
+  "providers": [
+    { "id": "deepseek", "type": "deepseek", "apiKeyEnv": "DEEPSEEK_API_KEY" },
+    {
+      "id": "openrouter", "type": "openrouter", "managementKeyEnv": "OPENROUTER_MANAGEMENT_KEY", "payerKeyLimitUsd": 50, "zeroDataRetention": true, "probeHosts": true,
+      "allowedFamilies": ["anthropic", "openai", "google", "deepseek", "qwen", "bytedance-seed", "z-ai", "moonshotai"]
+    }
+  ],
+  "entries": []
+}

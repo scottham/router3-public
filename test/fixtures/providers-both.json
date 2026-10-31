@@ -1,0 +1,8 @@
+{
+  "providers": [
+    { "id": "deepseek", "type": "deepseek", "apiKeyEnv": "DEEPSEEK_API_KEY" },
+    { "id": "openrouter", "type": "openrouter", "managementKeyEnv": "OPENROUTER_MANAGEMENT_KEY", "payerKeyLimitUsd": 25,
+      "allowedModels": ["anthropic/claude-sonnet-5.5", "qwen/qwen3.8-flash", { "id": "deepseek/deepseek-v4.1-flash", "provider": "Relace" }, "nobody/missing-model"] }
+  ],
+  "entries": []
+}

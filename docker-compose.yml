@@ -1,0 +1,95 @@
+x-db-environment: &db-environment
+  NODE_ENV: ${NODE_ENV:-development}
+  DB_POOL_MAX: ${DB_POOL_MAX:-12}
+  DB_STATEMENT_TIMEOUT_MS: ${DB_STATEMENT_TIMEOUT_MS:-15000}
+  DB_IDLE_TIMEOUT_MS: ${DB_IDLE_TIMEOUT_MS:-30000}
+  DB_APPLICATION_NAME: ${DB_APPLICATION_NAME:-model-credit-gateway}
+  DB_SSL_REJECT_UNAUTHORIZED: ${DB_SSL_REJECT_UNAUTHORIZED:-true}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+services:
+  redis:
+    image: redis:7.4.8-alpine@sha256:7aec734b2bb298a1d769fd8729f13b8514a41bf90fcdd1f38ec52267fbaa8ee6
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Run npm run env:complete first}
+    command: [sh, -c, 'exec redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction']
+    ports: ["127.0.0.1:6379:6379"]
+    volumes: ["redis:/data"]
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli ping | grep -q PONG']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8787}
+        VITE_WALLETCONNECT_PROJECT_ID: ${WALLETCONNECT_PROJECT_ID:-}
+    ports:
+      - "127.0.0.1:3000:80"
+    restart: unless-stopped
+
+  api:
+    build: .
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file: ["${PROVIDER_ENV_FILE:-./providers/empty.env}"]
+    volumes: ["${PROVIDER_CONFIG_FILE:-./providers/providers.legacy.json}:/app/providers/providers.json:ro"]
+    environment:
+      <<: *db-environment
+      MCG_RUNTIME: api
+      REDIS_REQUIRED: true
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      REDIS_NAMESPACE: router3-dev
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-8787}
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      MONAD_RPC_URL: ${MONAD_RPC_URL:-https://rpc.monad.xyz}
+      APP_NAME: ${APP_NAME:-Router 3}
+      APP_LOGO_URL: ${APP_LOGO_URL:-}
+      AUTH_SESSION_HMAC_SECRET: ${AUTH_SESSION_HMAC_SECRET}
+      AUTH_SESSION_TTL_SECONDS: ${AUTH_SESSION_TTL_SECONDS:-604800}
+      AUTH_CHALLENGE_TTL_SECONDS: ${AUTH_CHALLENGE_TTL_SECONDS:-300}
+      AUTH_COOKIE_NAME: ${AUTH_COOKIE_NAME:-mcg_session}
+      AUTH_ALLOWED_ADDRESSES: ${AUTH_ALLOWED_ADDRESSES:-}
+      DATABASE_URL_API: ${DATABASE_URL_API_DOCKER:-${DATABASE_URL_API}}
+      RESPONSE_ENCRYPTION_KEYS: ${RESPONSE_ENCRYPTION_KEYS}
+      DEFAULT_REQUEST_TIMEOUT_MS: ${DEFAULT_REQUEST_TIMEOUT_MS:-120000}
+      MAX_REQUEST_TIMEOUT_MS: ${MAX_REQUEST_TIMEOUT_MS:-300000}
+      MAX_REQUEST_BODY_BYTES: ${MAX_REQUEST_BODY_BYTES:-1048576}
+      REAL_MODEL_CALLS_ENABLED: ${REAL_MODEL_CALLS_ENABLED:-false}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-120}
+      RATE_LIMIT_WINDOW: ${RATE_LIMIT_WINDOW:-1 minute}
+      CHAIN_CONFIG_JSON: ${CHAIN_CONFIG_JSON:-}
+      TREASURY_ADDRESS: ${TREASURY_ADDRESS:-}
+      SETTLER_ADDRESS: ${SETTLER_ADDRESS:-}
+      SETTLER_SIGNER_URL: ${SETTLER_SIGNER_URL:-}
+      SETTLER_SIGNER_BEARER_TOKEN: ${SETTLER_SIGNER_BEARER_TOKEN:-}
+      X402_FACILITATOR_URL: ${X402_FACILITATOR_URL:-https://x402-facilitator.molandak.org}
+      PROVIDER_CONFIG_PATH: /app/providers/providers.json
+    ports:
+      - "127.0.0.1:8787:8787"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  reconciler:
+    build: .
+    environment:
+      <<: *db-environment
+      MCG_RUNTIME: reconciler
+      DATABASE_URL_RECONCILER: ${DATABASE_URL_RECONCILER_DOCKER:-${DATABASE_URL_RECONCILER}}
+      STALE_REQUEST_AFTER_SECONDS: ${STALE_REQUEST_AFTER_SECONDS:-900}
+    command: ["node", "src/runtime.js"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+volumes:
+  redis:

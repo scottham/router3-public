@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Router 3 · UI preview (mock data)</title>
+  </head>
+  <body>
+    <script type="module">
+      // Preview only: replaces /v1/* with fixed fake data before the app boots.
+      // Not part of the production build (vite builds index.html only).
+      import { installMockFetch } from './dev/mock-api.js';
+      installMockFetch();
+      const html = await (await fetch('/index.html')).text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      document.head.append(...[...doc.head.children].filter((node) => node.tagName !== 'SCRIPT' && node.tagName !== 'TITLE'));
+      document.body.replaceChildren(...[...doc.body.children].filter((node) => node.tagName !== 'SCRIPT'));
+      await import('./src/main.jsx');
+    </script>
+  </body>
+</html>

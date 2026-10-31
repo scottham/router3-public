@@ -1,0 +1,16 @@
+node_modules
+web/node_modules
+web/dist
+contracts/out
+contracts/cache
+.env
+.env.*
+!.env.example
+.git
+.DS_Store
+npm-debug.log*
+.secrets
+.state
+backups
+.router3
+router3.config.json

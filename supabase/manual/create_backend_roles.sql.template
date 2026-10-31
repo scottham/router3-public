@@ -1,0 +1,98 @@
+-- Run once as the database owner after replacing all three placeholders.
+-- Do not reuse passwords. Store the resulting connection strings in your secret manager.
+
+do $$
+declare
+  api_password text := 'REPLACE_API_DB_PASSWORD';
+  settler_password text := 'REPLACE_SETTLER_DB_PASSWORD';
+  reconciler_password text := 'REPLACE_RECONCILER_DB_PASSWORD';
+begin
+  if api_password like 'REPLACE_%' or settler_password like 'REPLACE_%' or reconciler_password like 'REPLACE_%' then
+    raise exception 'Replace every REPLACE_* password before running this script';
+  end if;
+
+  if not exists (select 1 from pg_roles where rolname = 'gateway_api') then
+    execute format('create role gateway_api login noinherit password %L', api_password);
+  else
+    execute format('alter role gateway_api login noinherit password %L', api_password);
+  end if;
+
+  if not exists (select 1 from pg_roles where rolname = 'gateway_settler') then
+    execute format('create role gateway_settler login noinherit password %L', settler_password);
+  else
+    execute format('alter role gateway_settler login noinherit password %L', settler_password);
+  end if;
+
+  if not exists (select 1 from pg_roles where rolname = 'gateway_reconciler') then
+    execute format('create role gateway_reconciler login noinherit password %L', reconciler_password);
+  else
+    execute format('alter role gateway_reconciler login noinherit password %L', reconciler_password);
+  end if;
+end $$;
+
+grant connect on database postgres to gateway_api, gateway_settler, gateway_reconciler;
+grant usage on schema public, private to gateway_api, gateway_settler, gateway_reconciler;
+
+-- API runtime: wallet sign-in and sessions, the catalog and prices, the x402
+-- channel mirror and ledger, per-payer provider keys.
+grant select on public.app_users, public.user_profiles, public.user_wallets, public.model_catalog to gateway_api;
+grant select on private.base_account_bindings, private.base_auth_challenges, private.base_auth_sessions,
+  private.model_price_versions, private.call_fee_policies, private.bailian_catalog_state to gateway_api;
+grant insert, update, delete on private.base_auth_challenges, private.base_auth_sessions to gateway_api;
+grant insert on public.user_wallets to gateway_api;
+grant execute on function private.resolve_or_create_base_account(text,bigint) to gateway_api;
+
+-- x402 channels: the API keeps the channel mirror and the per-request ledger;
+-- the collector claims and settles; the signer (granted separately) reads the
+-- mirror to bound what it signs.
+grant select, insert, update, delete on private.x402_channels to gateway_api, gateway_settler;
+grant select, insert, update on private.x402_requests to gateway_api;
+grant select, insert on private.x402_settlements to gateway_api, gateway_settler;
+grant select on private.x402_requests to gateway_settler;
+grant select, insert, update on private.provider_payer_keys to gateway_api;
+-- The collector keeps a wallet's OpenRouter key limit equal to its pool daily
+-- limit as soon as a configure confirms.
+grant select, update on private.provider_payer_keys to gateway_settler;
+grant select, insert, update on private.api_keys to gateway_api;
+-- Prepaid pool: the API reserves and charges under the account lock and queues
+-- the wallet's signed calls; the collector plans, submits and confirms them.
+grant select, insert, update on private.pool_accounts, private.pool_requests, private.pool_ops to gateway_api, gateway_settler;
+grant select on private.pool_batches to gateway_api;
+grant select, insert, update on private.pool_batches to gateway_settler;
+grant select on private.api_keys to gateway_settler;
+grant execute on function private.fail_unsigned_pool_batch(text,uuid,text) to gateway_settler;
+
+-- Reconciler is read-only except for narrowly scoped cleanup and recovery.
+grant select on all tables in schema public, private to gateway_reconciler;
+grant execute on function private.cleanup_expired_base_auth_data() to gateway_reconciler;
+grant execute on function private.recover_lost_x402_requests(timestamptz) to gateway_reconciler;
+grant execute on function private.recover_lost_pool_requests(timestamptz) to gateway_reconciler;
+
+-- A compromised runtime must not create extensions, schemas, roles, or bypass RLS.
+alter role gateway_api set statement_timeout = '15s';
+alter role gateway_settler set statement_timeout = '30s';
+alter role gateway_reconciler set statement_timeout = '120s';
+
+-- Trusted backend roles are still subject to RLS; narrowly scoped policies make their
+-- explicitly granted public-table operations usable without granting BYPASSRLS.
+drop policy if exists gateway_api_app_users_select on public.app_users;
+create policy gateway_api_app_users_select on public.app_users for select to gateway_api using (true);
+drop policy if exists gateway_api_profiles_select on public.user_profiles;
+create policy gateway_api_profiles_select on public.user_profiles for select to gateway_api using (true);
+drop policy if exists gateway_api_wallets_select on public.user_wallets;
+create policy gateway_api_wallets_select on public.user_wallets for select to gateway_api using (true);
+drop policy if exists gateway_api_wallets_insert on public.user_wallets;
+create policy gateway_api_wallets_insert on public.user_wallets for insert to gateway_api with check (true);
+drop policy if exists gateway_api_wallets_update on public.user_wallets;
+create policy gateway_api_wallets_update on public.user_wallets for update to gateway_api using (true) with check (true);
+drop policy if exists gateway_api_models_select on public.model_catalog;
+create policy gateway_api_models_select on public.model_catalog for select to gateway_api using (true);
+
+drop policy if exists gateway_reconciler_app_users_select on public.app_users;
+create policy gateway_reconciler_app_users_select on public.app_users for select to gateway_reconciler using (true);
+drop policy if exists gateway_reconciler_profiles_select on public.user_profiles;
+create policy gateway_reconciler_profiles_select on public.user_profiles for select to gateway_reconciler using (true);
+drop policy if exists gateway_reconciler_wallets_select on public.user_wallets;
+create policy gateway_reconciler_wallets_select on public.user_wallets for select to gateway_reconciler using (true);
+drop policy if exists gateway_reconciler_models_select on public.model_catalog;
+create policy gateway_reconciler_models_select on public.model_catalog for select to gateway_reconciler using (true);
