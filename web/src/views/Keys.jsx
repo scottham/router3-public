@@ -101,7 +101,7 @@ function PoolCard({ pool, busy, onSetup, onLimits, onAllowance, onWithdraw, onCa
         <Stat label={t('Pool')} value={displayTokenAmount(pool.poolBalanceAtomic)} unit="USDC" foot={t('Refills to {0}', usdc(pool.refillTargetAtomic))} />
         <Stat label={t('Available')} value={displayTokenAmount(pool.availableAtomic)} unit="USDC"
           foot={t('After {0} running and {1} owed', pool.running, usdc(pool.unsettledAtomic))} />
-        <Stat label={t('Today')} value={displayTokenAmount(pool.dailyRemainingAtomic)} unit="USDC" foot={t('Left of the {0} daily limit', usdc(pool.dailyLimitAtomic))} />
+        <Stat label={t('Daily limit remaining')} value={displayTokenAmount(pool.dailyRemainingAtomic)} unit="USDC" foot={t('Daily limit: {0}', usdc(pool.dailyLimitAtomic))} />
         <Stat label={t('Allowance')} value={displayTokenAmount(pool.allowanceAtomic)} unit="USDC" foot={t('Wallet holds {0}', usdc(pool.walletBalanceAtomic))} />
       </section>
       {pending.length ? <Note>{t('Submitting: {0}', pending.map((o) => o.kind).join(', '))}</Note> : null}
@@ -275,7 +275,7 @@ export function Keys() {
         </Empty>
       ) : (
         <section className="card flush">
-          <Table headers={[t('Name'), { text: t('Today'), className: 'num' }, { text: t('Spent'), className: 'num' }, t('Limits'), t('Last used'), t('Status'), '']}>
+          <Table headers={[t('Name'), { text: t('Spent today'), className: 'num' }, { text: t('Spent'), className: 'num' }, t('Limits'), t('Last used'), t('Status'), '']}>
             {keys.map((apiKey) => {
               const live = apiKey.state === 'active';
               const legacy = big(apiKey.legacyChannel?.unspentAtomic) > 0n;
